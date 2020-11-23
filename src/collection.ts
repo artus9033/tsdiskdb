@@ -3,7 +3,7 @@ import path from "path";
 import { isArray } from "lodash";
 import uuid from "uuid";
 
-import util, { CollectionType, ModelTypeBase, QueryType } from "./util";
+import util, { CollectionType, EnrichModelType, ModelTypeBase, QueryType } from "./util";
 import DiskDB from ".";
 
 export default class Collection<ModelType extends ModelTypeBase> {
@@ -13,7 +13,7 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		this._f = path.join(this.db._db.path, this.collectionName + ".json");
 	}
 
-	find(query?: QueryType<ModelType>) {
+	find(query?: QueryType<ModelType>): EnrichModelType<ModelType>[] {
 		var collection = JSON.parse(util.readFromFile(this._f));
 
 		if (!query || Object.keys(query).length === 0) {
@@ -24,7 +24,7 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		}
 	}
 
-	findOne(query?: QueryType<ModelType>) {
+	findOne(query?: QueryType<ModelType>): EnrichModelType<ModelType> {
 		var collection = JSON.parse(util.readFromFile(this._f));
 
 		if (!query) {
@@ -35,9 +35,11 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		}
 	}
 
-	save(data: Omit<ModelType, "_id">): ModelType;
-	save(data: Omit<ModelType, "_id">[]): ModelType[];
-	save(data: Omit<ModelType, "_id"> | Omit<ModelType, "_id">[]): ModelType | ModelType[] {
+	save(data: Omit<ModelType, "_id">): EnrichModelType<ModelType>;
+	save(data: Omit<ModelType, "_id">[]): EnrichModelType<ModelType>[];
+	save(
+		data: Omit<ModelType, "_id"> | Omit<ModelType, "_id">[]
+	): EnrichModelType<ModelType> | EnrichModelType<ModelType>[] {
 		var collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<ModelType>;
 
 		if (isArray(data)) {
@@ -68,7 +70,9 @@ export default class Collection<ModelType extends ModelTypeBase> {
 			...data,
 			_id: uuid.v4().replace(/-/g, ""),
 		} as ModelType;
+
 		collection.push(newData);
+
 		util.writeToFile(this._f, collection);
 
 		return newData;

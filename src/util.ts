@@ -4,6 +4,7 @@ var merge = require("merge");
 export type ModelTypeBase = { _id: string };
 export type CollectionType<ModelType extends ModelTypeBase = ModelTypeBase> = Array<ModelType>;
 export type QueryType<ModelType extends ModelTypeBase> = Partial<ModelType> | undefined | null;
+export type EnrichModelType<ModelType> = ModelType & ModelTypeBase;
 
 export class util {
 	static isValidPath(path: string) {
