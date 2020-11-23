@@ -29,9 +29,9 @@ export class util {
 		return fs.unlinkSync(file);
 	}
 
-	static updateFiltered<ModelType extends ModelTypeBase>(
-		collection: CollectionType<ModelType>,
-		query: QueryType<ModelType> = {},
+	static updateFiltered<CollectionModelType>(
+		collection: CollectionType<CollectionModelType & ModelTypeBase>,
+		query: QueryType<CollectionModelType & ModelTypeBase> = {},
 		data: Object,
 		multi?: boolean
 	) {

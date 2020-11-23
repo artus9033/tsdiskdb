@@ -3,13 +3,13 @@ import path from "path";
 import { red as e, green as s } from "chalk";
 
 import Collection from "./collection";
-import util, { ModelTypeBase } from "./util";
+import util from "./util";
 
 type ValuesOf<T extends any[]> = T[number];
 
 class DiskDB<
 	CollectionTypes extends {
-		[key: string]: ModelTypeBase;
+		[key: string]: object;
 	}
 > {
 	public _db = {

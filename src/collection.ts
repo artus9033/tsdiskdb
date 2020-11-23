@@ -6,14 +6,16 @@ import uuid from "uuid";
 import util, { CollectionType, EnrichModelType, ModelTypeBase, QueryType } from "./util";
 import DiskDB from ".";
 
-export default class Collection<ModelType extends ModelTypeBase> {
+export default class Collection<CollectionModelType> {
 	private _f: string;
 
 	constructor(private db: DiskDB<any>, private collectionName: string) {
 		this._f = path.join(this.db._db.path, this.collectionName + ".json");
 	}
 
-	find(query?: QueryType<ModelType>): EnrichModelType<ModelType>[] {
+	find(
+		query?: QueryType<CollectionModelType & ModelTypeBase>
+	): EnrichModelType<CollectionModelType & ModelTypeBase>[] {
 		var collection = JSON.parse(util.readFromFile(this._f));
 
 		if (!query || Object.keys(query).length === 0) {
@@ -24,7 +26,9 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		}
 	}
 
-	findOne(query?: QueryType<ModelType>): EnrichModelType<ModelType> {
+	findOne(
+		query?: QueryType<CollectionModelType & ModelTypeBase>
+	): EnrichModelType<CollectionModelType & ModelTypeBase> {
 		var collection = JSON.parse(util.readFromFile(this._f));
 
 		if (!query) {
@@ -35,12 +39,22 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		}
 	}
 
-	save(data: Omit<ModelType, "_id">): EnrichModelType<ModelType>;
-	save(data: Omit<ModelType, "_id">[]): EnrichModelType<ModelType>[];
 	save(
-		data: Omit<ModelType, "_id"> | Omit<ModelType, "_id">[]
-	): EnrichModelType<ModelType> | EnrichModelType<ModelType>[] {
-		var collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<ModelType>;
+		data: Omit<CollectionModelType & ModelTypeBase, "_id">
+	): EnrichModelType<CollectionModelType & ModelTypeBase>;
+	save(
+		data: Omit<CollectionModelType & ModelTypeBase, "_id">[]
+	): EnrichModelType<CollectionModelType & ModelTypeBase>[];
+	save(
+		data:
+			| Omit<CollectionModelType & ModelTypeBase, "_id">
+			| Omit<CollectionModelType & ModelTypeBase, "_id">[]
+	):
+		| EnrichModelType<CollectionModelType & ModelTypeBase>
+		| EnrichModelType<CollectionModelType & ModelTypeBase>[] {
+		var collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<
+			CollectionModelType & ModelTypeBase
+		>;
 
 		if (isArray(data)) {
 			/*
@@ -56,7 +70,7 @@ export default class Collection<ModelType extends ModelTypeBase> {
 				let d = {
 					...data[i],
 					_id: uuid.v4().replace(/-/g, ""),
-				} as ModelType;
+				} as CollectionModelType & ModelTypeBase;
 				collection.push(d);
 				retCollection.push(d);
 			}
@@ -69,7 +83,7 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		let newData = {
 			...data,
 			_id: uuid.v4().replace(/-/g, ""),
-		} as ModelType;
+		} as CollectionModelType & ModelTypeBase;
 
 		collection.push(newData);
 
@@ -79,8 +93,8 @@ export default class Collection<ModelType extends ModelTypeBase> {
 	}
 
 	update(
-		query: QueryType<ModelType>,
-		data: ModelType,
+		query: QueryType<CollectionModelType & ModelTypeBase>,
+		data: CollectionModelType & ModelTypeBase,
 		options?: {
 			multi?: boolean;
 			upsert?: boolean;
@@ -90,7 +104,9 @@ export default class Collection<ModelType extends ModelTypeBase> {
 				updated: number;
 				inserted: number;
 			} = { updated: 0, inserted: 0 },
-			collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<ModelType>; // update
+			collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<
+				CollectionModelType & ModelTypeBase
+			>; // update
 
 		var records = util.finder(collection, query, true);
 
@@ -121,7 +137,7 @@ export default class Collection<ModelType extends ModelTypeBase> {
 		return ret;
 	}
 
-	remove(query?: QueryType<ModelType>, multi?: boolean) {
+	remove(query?: QueryType<CollectionModelType & ModelTypeBase>, multi?: boolean) {
 		if (query) {
 			var collection = JSON.parse(util.readFromFile(this._f));
 			if (typeof multi === "undefined") {
@@ -140,6 +156,8 @@ export default class Collection<ModelType extends ModelTypeBase> {
 	}
 
 	count() {
-		return (JSON.parse(util.readFromFile(this._f)) as CollectionType<ModelType>).length;
+		return (JSON.parse(util.readFromFile(this._f)) as CollectionType<
+			CollectionModelType & ModelTypeBase
+		>).length;
 	}
 }
