@@ -1,7 +1,7 @@
 import path from "path";
 
 import { isArray } from "lodash";
-import uuid from "uuid";
+import { v4 } from "uuid";
 
 import util, { CollectionType, EnrichModelType, ModelTypeBase, QueryType } from "./util";
 import DiskDB from ".";
@@ -69,7 +69,7 @@ export default class Collection<CollectionModelType> {
 			for (var i = data.length - 1; i >= 0; i--) {
 				let d = {
 					...data[i],
-					_id: uuid.v4().replace(/-/g, ""),
+					_id: v4().replace(/-/g, ""),
 				} as CollectionModelType & ModelTypeBase;
 				collection.push(d);
 				retCollection.push(d);
@@ -82,7 +82,7 @@ export default class Collection<CollectionModelType> {
 
 		let newData = {
 			...data,
-			_id: uuid.v4().replace(/-/g, ""),
+			_id: v4().replace(/-/g, ""),
 		} as CollectionModelType & ModelTypeBase;
 
 		collection.push(newData);
@@ -122,7 +122,7 @@ export default class Collection<CollectionModelType> {
 			}
 		} else {
 			if (options && options.upsert) {
-				data._id = uuid.v4().replace(/-/g, "");
+				data._id = v4().replace(/-/g, "");
 				collection.push(data);
 				ret.updated = 0;
 				ret.inserted = 1;
