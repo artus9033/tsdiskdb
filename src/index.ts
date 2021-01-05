@@ -5,7 +5,8 @@ import { red as e, green as s } from "chalk";
 import Collection from "./collection";
 import util from "./util";
 
-type ValuesOf<T extends any[]> = T[number];
+export * as util from "./util";
+export * as collection from "./collection";
 
 class DiskDB<
 	CollectionTypes extends {

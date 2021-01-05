@@ -1,318 +1,325 @@
-# diskDB
+# tsDiskDB
 
 A Lightweight Disk based JSON Database with a MongoDB like API for Node, written in TypeScript.
 
 ## Contents
 
-- [diskDB](#diskdb)
+- [tsDiskDB](#tsdiskdb)
   - [Contents](#contents)
   - [Getting Started](#getting-started)
-  - [Documentation](#documentation)
-    - [Connect to DB](#connect-to-db)
-    - [Load Collections](#load-collections)
-      - [Load Multiple Collections](#load-multiple-collections)
-    - [Write/Save to Collection](#writesave-to-collection)
-    - [Read from Collection](#read-from-collection)
-      - [db.collectionName.find()](#dbcollectionnamefind)
-      - [db.collectionName.findOne(query)](#dbcollectionnamefindonequery)
-    - [Update Collection](#update-collection)
-    - [Remove Collection](#remove-collection)
-    - [Count](#count)
+    - [Load collections](#load-collections)
+      - [Load multiple collections](#load-multiple-collections)
+    - [Save models in a collection](#save-models-in-a-collection)
+    - [Search a collection](#search-a-collection)
+    - [Find many models in a collection](#find-many-models-in-a-collection)
+      - [Find one model in a collection](#find-one-model-in-a-collection)
+    - [Update a collection](#update-a-collection)
+    - [Remove a collection](#remove-a-collection)
+    - [Count models in a collection](#count-models-in-a-collection)
+- [Appendix](#appendix)
 
 ## Getting Started
-Install the module locally :  
+
+Install the module:
+
 ```bash
 $ npm install tsdiskdb
 ```
 
-```js
-var db = require('tsdiskdb');
-db = db.connect('/path/to/db-folder', ['collection-name']);
-// you can access the traditional JSON DB methods here
+Import & intitialize it with:
+
+```ts
+var db = require("tsdiskdb");
+// or with the import syntax, if supported:
+import db from "tsdiskdb";
 ```
 
-## Documentation
-### Connect to DB
-```js
-db.connect(pathToFolder, ['filename']);
-```
-Filename will be the name of the JSON file. You can omit the extension, tsdiskDB will take care of it for you.
+Then, connect to a `.json` 'DB' with:
 
-```js
-var db = require('tsdiskdb');
-db = db.connect('/examples/db', ['articles']);
-// or simply
-db.connect('/examples/db', ['articles']);
+```ts
+db.connect(pathToFolder, ["filename"]);
 ```
 
-This will check for a directory at given path, if it does not exits, tsdiskDB will throw an error and exit.
+Where `filename` is the name of the `.json` file. You can omit the extension. This method also returns the instance itself so it can be used for chaining calls as well.
 
-If the directory exists but the file/collection does not exist, tsdiskDB will create it for you.
+This will check for a directory at given path, if it does not exits, tsDiskDB will throw an error and exit.
 
-**Note** : If you have manually created a JSON file, please make sure it contains a valid JSON array, otherwise tsdiskDB
-will return an empty array.
+If the directory exists but the file does not exist, tsDiskDB will create it for you.
 
-```js
-[]
-```
-Else it will throw an error like
+**Note** : If you have manually created a JSON file, please make sure it contains a valid JSON array, otherwise tsDiskDB
+will return an empty array (`[]`).
 
-```bash
-undefined:0
-
-^
-SyntaxError: Unexpected end of input
-```
 ---
-### Load Collections
-Alternatively you can also load collections like
 
-```js
-var db = require('tsdiskdb');
-// this
-db = db.connect('/examples/db');
-db.loadCollections(['articles']);
-//or
-db.connect('/examples/db');
-db.loadCollections(['articles']);
-//or
-db.connect('/examples/db')
-  .loadCollections(['articles']);
-//or
-db.connect('/examples/db', ['articles']);
-```
-#### Load Multiple Collections
+### Load collections
 
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles','comments','users']);
+Alternatively you can also load collections with the following syntaxes:
+
+```ts
+var db = require("tsdiskdb");
+
+// variant 1
+db = db.connect("/path/to/folder");
+db.loadCollections(["articles"]);
+
+// variant 2
+db.connect("/path/to/folder");
+db.loadCollections(["articles"]);
+
+// variant 3
+db.connect("/path/to/folder").loadCollections(["articles"]);
+//or
+db.connect("/path/to/folder", ["articles"]);
 ```
+
+#### Load multiple collections
+
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles", "users"]);
+```
+
 ---
-### Write/Save to Collection
-```js
+
+### Save models in a collection
+
+```ts
 db.collectionName.save(object);
 ```
-Once you have loaded a collection, you can access the collection's methods using the dot notation like
 
-```js
-db.[collectionName].[methodname]
+Once you have loaded a collection, you can access the collection's methods the following way:
+
+```ts
+db.collectionName.methodName;
 ```
-To save the data, you can use
-```js
-var db = require('tsdiskdb');
-db.connect('db', ['articles']);
+
+To save a modified instance of a collection, use:
+
+```ts
+var db = require("tsdiskdb");
+db.connect("db", ["articles"]);
+
 var article = {
-    title : "tsdiskDB rocks",
-    published : "today",
-    rating : "5 stars"
-}
-db.articles.save(article);
-// or
-db.articles.save([article]);
-```
-The saved data will be
-```js
-[
-    {
-        "title": "tsdiskDB rocks",
-        "published": "today",
-        "rating": "5 stars",
-        "_id": "0f6047c6c69149f0be0c8f5943be91be"
-    }
-]
-```
-You can also save multiple objects at once like
+	title: "Article 1",
+	published: "today",
+	rating: "10/10",
+};
 
-```js
-var db = require('tsdiskdb');
-db.connect('db', ['articles']);
+db.articles.save(article);
+```
+
+The saved data will be
+
+```ts
+[
+	{
+		title: "Article 1",
+		published: "today",
+		rating: "10/10",
+		_id: "d6f39a8dc7494d19a3eb60a008e71cd9",
+	},
+];
+```
+
+You can also save multiple objects at once:
+
+```ts
+var db = require("tsdiskdb");
+db.connect("db", ["articles"]);
 var article1 = {
-    title : 'tsdiskDB rocks',
-    published : 'today',
-    rating : '5 stars'
-}
+	title: "Article 1",
+	published: "today",
+	rating: "10/10",
+};
 
 var article2 = {
-    title : 'tsdiskDB rocks',
-    published : 'yesterday',
-    rating : '5 stars'
-}
+	title: "Article 2",
+	published: "yesterday",
+	rating: "7/10",
+};
 
-var article3 = {
-    title : 'tsdiskDB rocks',
-    published : 'today',
-    rating : '4 stars'
-}
-db.articles.save([article1, article2, article3]);
+db.articles.save([article1, article2]);
 ```
+
 And this will return the inserted objects
 
-```js
-[ { title: 'tsdiskDB rocks',
-    published: 'today',
-    rating: '4 stars',
-    _id: 'b1cdbb3525b84e8c822fc78896d0ca7b' },
-  { title: 'tsdiskDB rocks',
-    published: 'yesterday',
-    rating: '5 stars',
-    _id: '42997c62e1714e9f9d88bf3b87901f3b' },
-  { title: 'tsdiskDB rocks',
-    published: 'today',
-    rating: '5 stars',
-    _id: '4ca1c1597ddc4020bc41b4418e7a568e' } ]
+```ts
+[
+	{
+		title: "Article 1",
+		published: "today",
+		rating: "10/10",
+		_id: "628574cc74384f8eb07236ef99140773",
+	},
+	{
+		title: "Article 2",
+		published: "yesterday",
+		rating: "7/10",
+		_id: "fd976e7ba0c64eb8acc2855701c32dfb",
+	},
+];
 ```
+
 ---
-### Read from Collection
-There are 2 methods available for reading the JSON collection
-* db.collectionName.find(query)
-* db.collectionName.findOne(query)
 
+### Search a collection
 
-#### db.collectionName.find()
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
+To search a collection, use:
+
+-   `db.collectionName.find({ query })` to find many models matching the specified criteria
+-   `db.collectionName.findOne({ query })` to find just one model matching the specified criteria
+
+### Find many models in a collection
+
+Use the following code to find all models in a collection:
+
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
 db.articles.find();
 ```
+
 This will return all the records
-```js
-[{
-    title: 'tsdiskDB rocks',
-    published: 'today',
-    rating: '5 stars',
-    _id: '0f6047c6c69149f0be0c8f5943be91be'
-}]
-```
-You can also query with a criteria like
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.find({rating : "5 stars"});
-```
-This will return all the articles which have a rating of 5.
 
-Find can take multiple criteria
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.find({rating : "5 stars", published: "yesterday"});
+```ts
+[
+	{
+		title: "tsdiskDB rocks",
+		published: "today",
+		rating: "5 stars",
+		_id: "0f6047c6c69149f0be0c8f5943be91be",
+	},
+];
 ```
-This will return all the articles with a rating of 5, published yesterday.
 
-Nested JSON :
+You can also query with a criteria that is a partial object of the original one stored.
 
-```js
-var articleComments = {
-    title: 'tsdiskDB rocks',
-    published: '2 days ago',
-    comments: [{
-        name: 'a user',
-        comment: 'this is cool',
-        rating: 2
-    }, {
-        name: 'b user',
-        comment: 'this is ratchet',
-        rating: 3
-    }, {
-        name: 'c user',
-        comment: 'this is awesome',
-        rating: 2
-    }]
-}
+For example:
+
+```ts
+db.articles.find({ rating: "7/10", published: "yesterday" });
 ```
-```js
-var savedArticle = db.articles.save([articleComments);
-foundArticles = db.articles.find({rating : 2});
-```
-Since tsdiskDB is mostly for light weight data storage, avoid nested structures and huge datasets.
 
-#### db.collectionName.findOne(query)
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
+With the data inside the collection fed by the aforementioned snippets, this would return:
+
+```json
+[
+	{
+		"title": "Article 2",
+		"published": "yesterday",
+		"rating": "7/10",
+		"_id": "fd976e7ba0c64eb8acc2855701c32dfb"
+	}
+]
+```
+
+Since tsDiskDB is mostly for lightweight data storage, avoid nested structures and huge datasets.
+
+#### Find one model in a collection
+
+```ts
 db.articles.findOne();
 ```
 
-If you do not pass a query, tsdiskDB will return the first article in the collection. If you pass a query, it will return first article in the filtered data.
+If you do not pass a query, tsDiskDB will return the first article in the collection. If you pass a query, it will return first article in the filtered data.
 
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.findOne({_id: '0f6047c6c69149f0be0c8f5943be91be'});
+```ts
+db.articles.findOne({ _id: "0f6047c6c69149f0be0c8f5943be91be" });
 ```
+
+Note that models can also be queried by their `_id` field, like above.
+
 ---
-### Update Collection
-```js
+
+### Update a collection
+
+```ts
 db.collectionName.update(query, data, options);
 ```
 
 You can also update one or many objects in the collection
-```js
-options = {
-    multi: false, // update multiple - default false
-    upsert: false // if object is not found, add it (update-insert) - default false
-}
-```
-Usage
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
 
+```ts
+options = {
+	multi: false, // update multiple - default false
+	upsert: false, // if object is not found, add it (update-insert) - default false
+};
+```
+
+Sample usage:
+
+```ts
 var query = {
-  title : 'tsdiskDB rocks'
+	title: "tsdiskDB rocks",
 };
 
-var dataToBeUpdate = {
-  title : 'tsdiskDB rocks again!',
+var dataToBeUpdated = {
+	title: "tsdiskDB rocks again!",
 };
 
 var options = {
-   multi: false,
-   upsert: false
+	multi: false,
+	upsert: false,
 };
 
-var updated = db.articles.update(query, dataToBeUpdate, options);
+var updated = db.articles.update(query, dataToBeUpdated, options);
 console.log(updated); // { updated: 1, inserted: 0 }
 ```
+
 ---
-### Remove Collection
-```js
+
+### Remove a collection
+
+```ts
 db.collectionName.remove(query, multi);
 ```
+
 You can remove the entire collection (including the file) or you can remove the matched objects by passing in a query. When you pass a query, you can either delete all the matched objects or only the first one by passing `multi` as `false`. The default value of `multi` is `true`.
 
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.remove({rating : "5 stars"});
-```
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.remove({rating : "5 stars"}, true); // remove all matched. Default - multi = true
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
+db.articles.remove({ rating: "5 stars" });
 ```
 
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
-db.articles.remove({rating : "5 stars"}, false); // remove only the first match
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
+db.articles.remove({ rating: "5 stars" }, true); // remove all matched. Default - multi = true
 ```
+
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
+db.articles.remove({ rating: "5 stars" }, false); // remove only the first match
+```
+
 Using remove without any params will delete the file and will remove the db instance.
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
+
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
 db.articles.remove();
 ```
+
 After the above operation `db.articles` is `undefined`.
 
 ---
-### Count
-```js
+
+### Count models in a collection
+
+```ts
 db.collectionName.count();
 ```
+
 Will return the count of objects in the Collection
-```js
-var db = require('tsdiskdb');
-db.connect('/examples/db', ['articles']);
+
+```ts
+var db = require("tsdiskdb");
+db.connect("/path/to/folder", ["articles"]);
 db.articles.count(); // will give the count
 ```
+
+# Appendix
+
+The project was originally based off [`diskdb`](https://github.com/arvindr21/diskDB) and is now a more advanced, improved version of the project, written `TypeScript`.
