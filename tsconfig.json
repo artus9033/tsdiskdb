@@ -8,10 +8,10 @@
 		"noImplicitAny": false,
 		"moduleResolution": "node",
 		"sourceMap": true,
+		"declaration": true,
 		"outDir": "dist",
 		"rootDir": "src",
-		"declaration": true,
 		"types": ["node", "jest"]
 	},
-	"exclude": ["test"]
+	"exclude": ["test", "dist"]
 }

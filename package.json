@@ -1,13 +1,14 @@
 {
 	"name": "tsdiskdb",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "TypeScript disk-based JSON database for storing small structures with a Mongo-like interface",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc --watch",
-		"postinstall": "npm run build",
-		"test": "jest"
+		"test": "jest",
+		"prepublish": "npm run build"
 	},
 	"author": "artus9033",
 	"homepage": "github.com/artus9033/tsdiskdb",
