@@ -8,7 +8,8 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"test": "jest",
-		"prepublish": "npm run build"
+		"prepublish": "npm run changelog && npm run build",
+		"changelog": "auto-changelog --template keepachangelog"
 	},
 	"author": "artus9033",
 	"homepage": "github.com/artus9033/tsdiskdb",
