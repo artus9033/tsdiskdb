@@ -1,6 +1,6 @@
 import path from "path";
 
-import { red as e, green as s } from "chalk";
+import { blueBright, green, red, yellowBright } from "chalk";
 
 import Collection from "./collection";
 import util from "./util";
@@ -13,70 +13,82 @@ class DiskDB<
 		[key: string]: object;
 	}
 > {
+	constructor(private LOG_TAG: string = "TSDiskDB") {}
+
 	public _db = {
 		path: "",
 	};
 
 	collections: { [T in keyof CollectionTypes]: Collection<CollectionTypes[T]> } = {} as any;
 
+	private log(...args: any[]) {
+		console.log(blueBright`[${this.LOG_TAG}]`, ...args);
+	}
+
+	private success(...args: any[]) {
+		console.log(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => green(arg)));
+	}
+
+	private warn(...args: any[]) {
+		console.warn(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => yellowBright(arg)));
+	}
+
+	private error(...args: any[]) {
+		console.error(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => red(arg)));
+	}
+
 	public connect(path: string, collections: Array<keyof CollectionTypes>) {
 		if (util.isValidPath(path)) {
 			this._db.path = path;
 
-			console.log(s("Successfully connected to : " + path));
+			this.success(`Successfully connected to ${path}`);
 
 			if (collections) {
 				this.loadCollections(collections as string[]);
 			}
 		} else {
-			console.log(
-				e(
-					"The DB Path [" +
-						path +
-						"] does not seem to be valid. Recheck the path and try again"
-				)
-			);
+			const message = `The DB Path '${path}' does not seem to be valid. Recheck the path and try again`;
 
-			return false;
+			this.error(message);
+
+			throw new Error(message);
 		}
+
 		return this;
 	}
 
 	public loadCollections(collections: Array<keyof CollectionTypes>) {
 		if (!this._db) {
-			console.log(
-				e(
-					"Initialize the DB before you add collections. Use : ",
-					"db.connect('path-to-db');"
-				)
-			);
-			return false;
+			const message = `Initialize the DB before you add collections: db.connect('path-to-db', ['collection1', ...]);`;
+
+			this.error(message);
+
+			throw new Error(message);
 		}
 
 		if (typeof collections === "object" && collections.length) {
-			for (var i = 0; i < collections.length; i++) {
-				var p = path.join(
+			for (let index = 0; index < collections.length; index++) {
+				const collectionJsonPath = path.join(
 					this._db.path,
-					((collections[i] as string).indexOf(".json") >= 0
-						? collections[i]
-						: collections[i]) + ".json"
+					((collections[index] as string).indexOf(".json") >= 0
+						? collections[index]
+						: collections[index]) + ".json"
 				);
 
-				if (!util.isValidPath(p)) {
-					util.writeToFile(p);
+				if (!util.isValidPath(collectionJsonPath)) {
+					util.writeToFile(collectionJsonPath);
 				}
 
-				var _c = (collections[i] as string).replace(".json", "");
-				this.collections[collections[i]] = new Collection(this, _c);
+				const oldCollectionName = (collections[index] as string).replace(".json", "");
+				this.collections[collections[index]] = new Collection(this, oldCollectionName);
 			}
 		} else {
-			console.log(
-				e(
-					"Invalid Collections Array.",
-					"Expected Format : ",
-					"['collection1','collection2','collection3']"
-				)
-			);
+			const message =
+				"Invalid collections array - expected format: ['collection1','collection2','collection3', ...]";
+
+			this.error(message);
+
+			throw new Error(message);
 		}
 
 		return this;

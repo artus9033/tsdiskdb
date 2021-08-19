@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 
 import { isArray } from "lodash";
@@ -7,54 +8,71 @@ import util, { CollectionType, EnrichModelType, ModelTypeBase, QueryType } from 
 import DiskDB from ".";
 
 export default class Collection<CollectionModelType> {
-	private _f: string;
+	private _filePath: string;
 
 	constructor(private db: DiskDB<any>, private collectionName: string) {
-		this._f = path.join(this.db._db.path, this.collectionName + ".json");
+		this._filePath = path.join(this.db._db.path, this.collectionName + ".json");
 	}
 
 	find(
-		query?: QueryType<CollectionModelType & ModelTypeBase>
-	): EnrichModelType<CollectionModelType & ModelTypeBase>[] {
-		var collection = JSON.parse(util.readFromFile(this._f));
+		query?: QueryType<EnrichModelType<CollectionModelType>>
+	): EnrichModelType<CollectionModelType>[] {
+		try {
+			let collection: CollectionType<EnrichModelType<CollectionModelType>> = JSON.parse(
+				util.readFromFile(this._filePath)
+			);
 
-		if (!query || Object.keys(query).length === 0) {
-			return collection;
-		} else {
-			var searcher = new util.ObjectSearcher();
-			return searcher.findAllInObject(collection, query, true);
+			return !query || Object.keys(query).length === 0
+				? collection
+				: new util.ObjectSearcher().findAllInObject(collection, query, true);
+		} catch {
+			// file does not exist
+			return [];
 		}
 	}
 
 	findOne(
-		query?: QueryType<CollectionModelType & ModelTypeBase>
-	): EnrichModelType<CollectionModelType & ModelTypeBase> {
-		var collection = JSON.parse(util.readFromFile(this._f));
+		query?: QueryType<EnrichModelType<CollectionModelType>>
+	): EnrichModelType<CollectionModelType> | undefined {
+		try {
+			let collection: CollectionType<EnrichModelType<CollectionModelType>> = JSON.parse(
+				util.readFromFile(this._filePath)
+			);
 
-		if (!query) {
-			return collection[0];
-		} else {
-			var searcher = new util.ObjectSearcher();
-			return searcher.findAllInObject(collection, query, false)[0];
+			if (query) {
+				let results = new util.ObjectSearcher().findAllInObject(collection, query, false);
+
+				return results.length ? results[0] : undefined;
+			} else {
+				return collection.length ? collection[0] : undefined;
+			}
+		} catch {
+			// file does not exist
+			return undefined;
 		}
 	}
 
 	save(
-		data: Omit<CollectionModelType & ModelTypeBase, "_id">
-	): EnrichModelType<CollectionModelType & ModelTypeBase>;
+		data: Omit<EnrichModelType<CollectionModelType>, "_id">
+	): EnrichModelType<CollectionModelType>;
 	save(
-		data: Omit<CollectionModelType & ModelTypeBase, "_id">[]
-	): EnrichModelType<CollectionModelType & ModelTypeBase>[];
+		data: Omit<EnrichModelType<CollectionModelType>, "_id">[]
+	): EnrichModelType<CollectionModelType>[];
 	save(
 		data:
-			| Omit<CollectionModelType & ModelTypeBase, "_id">
-			| Omit<CollectionModelType & ModelTypeBase, "_id">[]
-	):
-		| EnrichModelType<CollectionModelType & ModelTypeBase>
-		| EnrichModelType<CollectionModelType & ModelTypeBase>[] {
-		var collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<
-			CollectionModelType & ModelTypeBase
-		>;
+			| Omit<EnrichModelType<CollectionModelType>, "_id">
+			| Omit<EnrichModelType<CollectionModelType>, "_id">[]
+	): EnrichModelType<CollectionModelType> | EnrichModelType<CollectionModelType>[] {
+		let collection: CollectionType<EnrichModelType<CollectionModelType>>;
+
+		try {
+			collection = JSON.parse(util.readFromFile(this._filePath)) as CollectionType<
+				EnrichModelType<CollectionModelType>
+			>;
+		} catch {
+			// file does not exist
+			collection = [];
+		}
 
 		if (isArray(data)) {
 			/*
@@ -64,51 +82,57 @@ export default class Collection<CollectionModelType> {
 				}
 			}*/
 
-			var retCollection = [];
+			let retCollection = [];
 
-			for (var i = data.length - 1; i >= 0; i--) {
-				let d = {
+			for (let i = data.length - 1; i >= 0; i--) {
+				let newData = {
 					...data[i],
 					_id: v4().replace(/-/g, ""),
-				} as CollectionModelType & ModelTypeBase;
-				collection.push(d);
-				retCollection.push(d);
+				} as EnrichModelType<CollectionModelType>;
+				collection.push(newData);
+				retCollection.push(newData);
 			}
 
-			util.writeToFile(this._f, collection);
+			util.writeToFile(this._filePath, collection);
 
 			return retCollection;
+		} else {
+			let newData = {
+				...data,
+				_id: v4().replace(/-/g, ""),
+			} as EnrichModelType<CollectionModelType>;
+
+			collection.push(newData);
+
+			util.writeToFile(this._filePath, collection);
+
+			return newData;
 		}
-
-		let newData = {
-			...data,
-			_id: v4().replace(/-/g, ""),
-		} as CollectionModelType & ModelTypeBase;
-
-		collection.push(newData);
-
-		util.writeToFile(this._f, collection);
-
-		return newData;
 	}
 
 	update(
-		query: QueryType<CollectionModelType & ModelTypeBase>,
-		data: CollectionModelType & ModelTypeBase,
+		query: QueryType<EnrichModelType<CollectionModelType>>,
+		data: EnrichModelType<CollectionModelType>,
 		options?: {
 			multi?: boolean;
 			upsert?: boolean;
 		}
 	) {
-		var ret: {
-				updated: number;
-				inserted: number;
-			} = { updated: 0, inserted: 0 },
-			collection = JSON.parse(util.readFromFile(this._f)) as CollectionType<
-				CollectionModelType & ModelTypeBase
-			>; // update
+		let ret: {
+			updated: number;
+			inserted: number;
+		} = { updated: 0, inserted: 0 };
 
-		var records = util.finder(collection, query, true);
+		let collection: CollectionType<EnrichModelType<CollectionModelType>>;
+
+		try {
+			collection = JSON.parse(util.readFromFile(this._filePath));
+		} catch {
+			// file does not exist
+			collection = [];
+		}
+
+		let records = util.finder(collection, query, true);
 
 		if (records.length) {
 			if (options && options.multi) {
@@ -132,32 +156,39 @@ export default class Collection<CollectionModelType> {
 			}
 		}
 
-		util.writeToFile(this._f, collection);
+		util.writeToFile(this._filePath, collection);
 
 		return ret;
 	}
 
-	remove(query?: QueryType<CollectionModelType & ModelTypeBase>, multi?: boolean) {
-		if (query) {
-			var collection = JSON.parse(util.readFromFile(this._f));
-			if (typeof multi === "undefined") {
-				multi = true;
+	remove(query?: QueryType<EnrichModelType<CollectionModelType>>, multi: boolean = true) {
+		if (fs.existsSync(this._filePath)) {
+			if (query) {
+				let collection: CollectionType<EnrichModelType<CollectionModelType>> = JSON.parse(
+					util.readFromFile(this._filePath)
+				);
+
+				collection = util.removeFiltered(collection, query, multi);
+
+				util.writeToFile(this._filePath, collection);
+			} else {
+				util.removeFile(this._filePath);
+
+				delete this.db[this.collectionName];
 			}
-			collection = util.removeFiltered(collection, query, multi);
-
-			util.writeToFile(this._f, collection);
-		} else {
-			util.removeFile(this._f);
-
-			delete this.db[this.collectionName];
 		}
-
-		return true;
 	}
 
 	count() {
-		return (JSON.parse(util.readFromFile(this._f)) as CollectionType<
-			CollectionModelType & ModelTypeBase
-		>).length;
+		try {
+			return (
+				JSON.parse(util.readFromFile(this._filePath)) as CollectionType<
+					EnrichModelType<CollectionModelType>
+				>
+			).length;
+		} catch {
+			// file does not exist
+			return 0;
+		}
 	}
 }
