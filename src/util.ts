@@ -1,5 +1,6 @@
-var fs = require("fs");
-var merge = require("merge");
+import fs from "fs";
+
+import merge from "merge";
 
 export type ModelTypeBase = { _id: string };
 export type CollectionType<ModelType extends ModelTypeBase = ModelTypeBase> = Array<ModelType>;
@@ -41,7 +42,8 @@ export class util {
 
 			for (var p in query) {
 				if (p in c && c[p] == query[p]) {
-					collection[i] = merge(c, data);
+					collection[i] = merge.recursive(c, data);
+
 					if (!multi) {
 						break loop;
 					}
