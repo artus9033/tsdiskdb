@@ -23,6 +23,9 @@ jobs:
             - name: Update NPM
               run: npm install -g npm
 
+            - name: Install auto-changelog
+              run: npm install -g auto-changelog
+
             - name: Install NPM dependencies
               run: npm install
 
