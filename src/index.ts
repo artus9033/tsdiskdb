@@ -1,9 +1,11 @@
 import path from "path";
 
-import { blueBright, green, red, yellowBright } from "chalk";
+import chalk from "chalk";
 
 import Collection from "./collection";
 import util from "./util";
+
+const { blueBright, green, red, yellowBright } = chalk;
 
 export * as util from "./util";
 export * as collection from "./collection";
