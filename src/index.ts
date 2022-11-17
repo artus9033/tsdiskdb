@@ -72,9 +72,11 @@ class DiskDB<
 			for (let index = 0; index < collections.length; index++) {
 				const collectionJsonPath = path.join(
 					this._db.path,
-					((collections[index] as string).indexOf(".json") >= 0
-						? collections[index]
-						: collections[index]) + ".json"
+					String(
+						(collections[index] as string).indexOf(".json") >= 0
+							? collections[index]
+							: collections[index]
+					) + ".json"
 				);
 
 				if (!util.isValidPath(collectionJsonPath)) {
