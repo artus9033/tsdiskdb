@@ -24,19 +24,19 @@ class DiskDB<
 	collections: { [T in keyof CollectionTypes]: Collection<CollectionTypes[T]> } = {} as any;
 
 	private log(...args: any[]) {
-		console.log(blueBright`[${this.LOG_TAG}]`, ...args);
+		console.log(blueBright(`[${this.LOG_TAG}]`), ...args);
 	}
 
 	private success(...args: any[]) {
-		console.log(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => green(arg)));
+		console.log(blueBright(`[${this.LOG_TAG}]`), ...args.map((arg) => green(arg)));
 	}
 
 	private warn(...args: any[]) {
-		console.warn(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => yellowBright(arg)));
+		console.warn(blueBright(`[${this.LOG_TAG}]`), ...args.map((arg) => yellowBright(arg)));
 	}
 
 	private error(...args: any[]) {
-		console.error(blueBright`[${this.LOG_TAG}]`, ...args.map((arg) => red(arg)));
+		console.error(blueBright(`[${this.LOG_TAG}]`), ...args.map((arg) => red(arg)));
 	}
 
 	public connect(path: string, collections: Array<keyof CollectionTypes>) {
