@@ -1,22 +1,22 @@
 # tsDiskDB
 
-A Lightweight Disk based JSON Database with a MongoDB like API for Node, written in TypeScript.
+A Lightweight Disk based JSON Database with a MongoDB like API for Node, written in TypeScript. Port of the original [`diskdb`](https://github.com/arvindr21/diskDB), with types.
 
 ## Contents
 
-- [tsDiskDB](#tsdiskdb)
-  - [Contents](#contents)
-  - [Getting Started](#getting-started)
-    - [Load collections](#load-collections)
-      - [Load multiple collections](#load-multiple-collections)
-    - [Save models in a collection](#save-models-in-a-collection)
-    - [Search a collection](#search-a-collection)
-    - [Find many models in a collection](#find-many-models-in-a-collection)
-      - [Find one model in a collection](#find-one-model-in-a-collection)
-    - [Update a collection](#update-a-collection)
-    - [Remove a collection](#remove-a-collection)
-    - [Count models in a collection](#count-models-in-a-collection)
-- [Appendix](#appendix)
+-   [tsDiskDB](#tsdiskdb)
+    -   [Contents](#contents)
+    -   [Getting Started](#getting-started)
+        -   [Load collections](#load-collections)
+            -   [Load multiple collections](#load-multiple-collections)
+        -   [Save models in a collection](#save-models-in-a-collection)
+        -   [Search a collection](#search-a-collection)
+        -   [Find many models in a collection](#find-many-models-in-a-collection)
+            -   [Find one model in a collection](#find-one-model-in-a-collection)
+        -   [Update a collection](#update-a-collection)
+        -   [Remove a collection](#remove-a-collection)
+        -   [Count models in a collection](#count-models-in-a-collection)
+-   [Appendix](#appendix)
 
 ## Getting Started
 
@@ -322,4 +322,4 @@ db.articles.count(); // will give the count
 
 # Appendix
 
-The project was originally based off [`diskdb`](https://github.com/arvindr21/diskDB) and is now a more advanced, improved version of the project, written `TypeScript`.
+The project was originally based off [`diskdb`](https://github.com/arvindr21/diskDB) and is now a more advanced, improved version of the project, ported to TypeScript.
