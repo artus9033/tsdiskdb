@@ -2,3 +2,5 @@ dist
 node_modules
 test/tmp
 test/tmp/*
+*.tgz
+.DS_Store

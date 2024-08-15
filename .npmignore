@@ -1,3 +1,10 @@
 node_modules
 docs
 test
+jest.config.js
+src
+tsconfig.json
+.github
+.prettierrc.json
+*.tgz
+.DS_Store
