@@ -7,7 +7,7 @@ jobs:
         name: Setup & run tests
         runs-on: ubuntu-latest
         env:
-            NODE_VERSION: 14.15.5
+            NODE_VERSION: 20.9.0
 
         steps:
             - name: Checkout
