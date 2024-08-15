@@ -1,6 +1,6 @@
 {
 	"name": "tsdiskdb",
-	"version": "2.1.6",
+	"version": "2.1.7",
 	"description": "TypeScript disk-based JSON database for storing small structures with a Mongo-like interface",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
