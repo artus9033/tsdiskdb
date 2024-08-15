@@ -10,7 +10,7 @@ const { blueBright, green, red, yellowBright } = chalk;
 export * as util from "./util";
 export * as collection from "./collection";
 
-class DiskDB<
+export class DiskDB<
 	CollectionTypes extends {
 		[key: string]: object;
 	}
